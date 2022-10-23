@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@Transactional
+@Transactional // 테스트 코드의 Transaction은 DB에 커밋 되지 않도록 설정되어 있음.
 public class JpaMemoRepositoryTest {
 
     @Autowired

@@ -16,8 +16,11 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true) // 해당 클래스의 하위 메소드들에 트랜잭션 적용
 public class DiaryService {
 
     @Value("${openweathermap.key}")
@@ -29,6 +32,7 @@ public class DiaryService {
         this.diaryRepository = diaryRepository;
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void createDiary(LocalDate date, String text) {
         // restapi에서 데이터 받아오기
         String weatherDate = getWeatherString();
@@ -47,6 +51,7 @@ public class DiaryService {
 
     }
 
+    @Transactional(readOnly = true)
     public List<Diary> readDiary(LocalDate date) {
         return diaryRepository.findAllByDate(date);
     }
