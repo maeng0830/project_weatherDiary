@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import maeng0830.weather.domain.Diary;
 import maeng0830.weather.repository.DiaryRepository;
@@ -44,6 +45,27 @@ public class DiaryService {
         nowDiary.setDate(date);
         diaryRepository.save(nowDiary);
 
+    }
+
+    public List<Diary> readDiary(LocalDate date) {
+        return diaryRepository.findAllByDate(date);
+    }
+
+    public List<Diary> readDiaries(LocalDate startDate, LocalDate endDate) {
+        return diaryRepository.findAllByDateBetween(startDate, endDate);
+    }
+
+    public void updateDiary(LocalDate date, String text) {
+        Diary nowDiary = diaryRepository.getFirstByDate(date);
+
+        nowDiary.setText(text);
+
+        // 동일한 id의 데이터가 존재할 경우, 새로운 데이터 추가가 아닌 갱신이 된다.
+        diaryRepository.save(nowDiary);
+    }
+
+    public void deleteDiary(LocalDate date) {
+        diaryRepository.deleteAllByDate(date);
     }
 
     private String getWeatherString() {
@@ -97,4 +119,7 @@ public class DiaryService {
 
         return resultMap;
     }
+
+
+
 }
