@@ -166,6 +166,8 @@ public class DiaryService {
             LocalDate curDate = LocalDate.now();
             if (curDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).equals(date.toString())) {
                 // 현재의 날씨 데이터가 누락된 경우에는 API를 통해 새로 데이터를 불러 올 수 있다.
+                // 날씨 데이터 테이블에 저장
+                dateWeatherRepository.save(getWeatherFromApi());
                 return getWeatherFromApi();
             } else {
                 // 과거의 날씨 데이터가 누락된 경우에는 새로 데이터를 불러 올 수 없다. 과거 날씨 데이터 불러오기는 유료 API 기능.
