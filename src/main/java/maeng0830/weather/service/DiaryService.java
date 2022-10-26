@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true) // 해당 클래스의 하위 메소드들에 트랜잭션 적용
+@Transactional // 해당 클래스의 하위 메소드들에 트랜잭션 적용
 public class DiaryService {
 
     @Value("${openweathermap.key}")
@@ -72,6 +73,7 @@ public class DiaryService {
         return diaryRepository.findAllByDate(date);
     }
 
+    @Transactional(readOnly = true)
     public List<Diary> readDiaries(LocalDate startDate, LocalDate endDate) {
         return diaryRepository.findAllByDateBetween(startDate, endDate);
     }
@@ -161,7 +163,15 @@ public class DiaryService {
 
         if (dateWeatherListFromDB.size() == 0) {
             // 해당 날짜의 날씨 데이터가 없으면, 새로 api 날씨 정보를 가져와야 한다.
-            return getWeatherFromApi();
+            LocalDate curDate = LocalDate.now();
+            if (curDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).equals(date.toString())) {
+                // 현재의 날씨 데이터가 누락된 경우에는 API를 통해 새로 데이터를 불러 올 수 있다.
+                return getWeatherFromApi();
+            } else {
+                // 과거의 날씨 데이터가 누락된 경우에는 새로 데이터를 불러 올 수 없다. 과거 날씨 데이터 불러오기는 유료 API 기능.
+                logger.error("해당 날짜의 날씨 데이터가 없습니다.");
+                return null;
+            }
         } else {
             return dateWeatherListFromDB.get(0);
         }
